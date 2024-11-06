@@ -5,10 +5,12 @@ import androidx.fragment.app.FragmentActivity;
 import android.location.Location;
 import android.os.Bundle;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -22,6 +24,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private Marker marker;
     private LatLng mCurrentLocation =  new LatLng(0,0);
+    private float bearing;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,13 +51,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void currentLocation(Location location) {
         mCurrentLocation = new LatLng(location.getLatitude(), location.getLongitude());
+        bearing = location.getBearing();
 
         if (mMap != null) {
             marker.setPosition(mCurrentLocation);
             float currentZoom = mMap.getCameraPosition().zoom;
 
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mCurrentLocation, currentZoom), 1000, null);
+            CameraPosition cameraPosition =  new CameraPosition.Builder()
+                    .target(mCurrentLocation )
+                    .zoom(currentZoom)
+                    .bearing(bearing)
+                    .build();
 
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 1000, null);
         }
+
+
     }
 }
